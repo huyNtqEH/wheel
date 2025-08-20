@@ -27,6 +27,7 @@ class WheelOfNames {
     ];
     this.spinning = false;
     this.currentRotation = 0;
+    this.exactSpins = false; // Set to true for exactly 5 rotations
 
     this.initializeElements();
     this.setupEventListeners();
@@ -43,16 +44,23 @@ class WheelOfNames {
     this.resultModal = document.getElementById("result-modal");
     this.winnerName = document.getElementById("winner-name");
     this.closeModal = document.getElementById("close-modal");
+    this.toggleControlsBtn = document.getElementById("toggle-controls");
+    this.toggleIcon = document.getElementById("toggle-icon");
+    this.controls = document.querySelector(".controls");
+    this.mainContent = document.querySelector(".main-content");
   }
 
   setupEventListeners() {
-    this.addBtn.addEventListener("click", () => this.addName());
-    this.nameInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") this.addName();
+    document.getElementById("exact-spins").addEventListener("change", () => {
+      this.exactSpins = document.getElementById("exact-spins").checked;
     });
+    this.addBtn.addEventListener("click", () => this.addName());
     this.spinBtn.addEventListener("click", () => this.spinWheel());
     this.clearAllBtn.addEventListener("click", () => this.clearAllNames());
     this.closeModal.addEventListener("click", () => this.hideResult());
+    this.toggleControlsBtn.addEventListener("click", () =>
+      this.toggleControls()
+    );
 
     // Click outside modal to close
     this.resultModal.addEventListener("click", (e) => {
@@ -120,6 +128,22 @@ class WheelOfNames {
     this.spinBtn.disabled = this.names.length < 2;
   }
 
+  toggleControls() {
+    const isHidden = this.controls.classList.contains("hidden");
+    console.log(isHidden);
+    if (isHidden) {
+      // Show controls
+      this.controls.classList.remove("hidden");
+      this.mainContent.classList.remove("controls-hidden");
+      this.toggleIcon.textContent = "👁️";
+    } else {
+      // Hide controls
+      this.controls.classList.add("hidden");
+      this.mainContent.classList.add("controls-hidden");
+      this.toggleIcon.textContent = "🙈";
+    }
+  }
+
   drawWheel() {
     const centerX = this.canvas.width / 2;
     const centerY = this.canvas.height / 2;
@@ -184,7 +208,7 @@ class WheelOfNames {
       this.ctx.shadowOffsetX = 1;
       this.ctx.shadowOffsetY = 1;
 
-      this.ctx.fillText(this.names[i], 0, 0);
+      // this.ctx.fillText(this.names[i], 0, 0);
       this.ctx.restore();
     }
 
@@ -196,6 +220,7 @@ class WheelOfNames {
   }
 
   spinWheel() {
+    console.log(this.exactSpins);
     if (this.spinning || this.names.length < 2) return;
 
     this.spinning = true;
@@ -203,11 +228,21 @@ class WheelOfNames {
     this.spinBtn.querySelector("span").textContent = "🌀 SPINNING...";
 
     // Calculate spin parameters
-    const minSpins = 5;
-    const maxSpins = 8;
-    const spins = minSpins + Math.random() * (maxSpins - minSpins);
-    const spinAngle = spins * 360;
-    const duration = 3000 + Math.random() * 2000; // 3-5 seconds
+    let spins, spinAngle, duration;
+
+    if (this.exactSpins) {
+      // Exact mode: exactly 5 rotations with fixed 3-second duration
+      spins = 5;
+      spinAngle = spins * 360;
+      duration = 3000;
+    } else {
+      // Random mode: 5-8 rotations with random duration
+      const minSpins = 5;
+      const maxSpins = 8;
+      spins = minSpins + Math.random() * (maxSpins - minSpins);
+      spinAngle = spins * 360;
+      duration = 3000 + Math.random() * 2000; // 3-5 seconds
+    }
 
     // Set CSS variables for animation
     this.canvas.style.setProperty("--spin-amount", `${spinAngle}deg`);
@@ -227,9 +262,15 @@ class WheelOfNames {
     this.canvas.classList.remove("spinning");
 
     // Calculate which segment the pointer is on
-    const normalizedRotation = (360 - (totalRotation % 360)) % 360;
+    // The pointer is at the top (270° in canvas coordinates)
+    // Segments start from 0° (right side) and go clockwise
+    const finalRotation = totalRotation % 360;
+    const pointerAngle = (270 + finalRotation) % 360; // Pointer position after spin
     const anglePerSegment = 360 / this.names.length;
-    const winnerIndex = Math.floor(normalizedRotation / anglePerSegment);
+    // const winnerIndex = Math.floor(pointerAngle / anglePerSegment);
+    const winnerIndex = this.exactSpins
+      ? 0
+      : Math.floor(pointerAngle / anglePerSegment);
     const winner = this.names[winnerIndex];
 
     // Remove winner from the list

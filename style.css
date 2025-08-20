@@ -34,6 +34,31 @@ header p {
     font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.9);
     font-weight: 300;
+    margin-bottom: 20px;
+}
+
+.toggle-controls-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-family: 'Poppins', sans-serif;
+}
+
+.toggle-controls-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.toggle-controls-btn span {
+    margin-right: 8px;
 }
 
 .main-content {
@@ -115,6 +140,19 @@ header p {
     padding: 30px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     height: fit-content;
+    transition: all 0.3s ease;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.controls.hidden {
+    opacity: 0;
+    transform: translateX(100%);
+    pointer-events: none;
+}
+
+.main-content.controls-hidden {
+    grid-template-columns: 1fr;
 }
 
 .controls h3 {
@@ -326,7 +364,7 @@ header p {
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .main-content {
+    .main-content, .main-content.controls-hidden {
         grid-template-columns: 1fr;
         gap: 20px;
     }
@@ -346,6 +384,12 @@ header p {
     
     .winner-name {
         font-size: 1.8rem;
+    }
+
+    .toggle-controls-btn {
+        margin-top: 10px;
+        padding: 8px 16px;
+        font-size: 0.8rem;
     }
 }
 
