@@ -61,9 +61,17 @@ class WheelOfNames {
   }
 
   addName() {
-    const name = this.nameInput.value.trim();
-    if (name && !this.names.includes(name)) {
-      this.names.push(name);
+    const input = this.nameInput.value.trim();
+    if (!input) return;
+
+    // Split by newlines and filter out empty lines
+    const newNames = input
+      .split("\n")
+      .map((name) => name.trim())
+      .filter((name) => name && !this.names.includes(name));
+
+    if (newNames.length > 0) {
+      this.names.push(...newNames);
       this.nameInput.value = "";
       this.updateNamesList();
       this.drawWheel();
@@ -223,6 +231,14 @@ class WheelOfNames {
     const anglePerSegment = 360 / this.names.length;
     const winnerIndex = Math.floor(normalizedRotation / anglePerSegment);
     const winner = this.names[winnerIndex];
+
+    // Remove winner from the list
+    this.names.splice(winnerIndex, 1);
+
+    // Update the display
+    this.updateNamesList();
+    this.drawWheel();
+    this.updateUI();
 
     // Show result
     this.showResult(winner);
