@@ -155,7 +155,6 @@ class WheelOfNames {
 
   toggleControls() {
     const isHidden = this.controls.classList.contains("hidden");
-    console.log(isHidden);
     if (isHidden) {
       // Show controls
       this.controls.classList.remove("hidden");
@@ -306,7 +305,8 @@ class WheelOfNames {
 
     // Remove winner from the list
     this.names.splice(winnerIndex, 1);
-    this.selectedNames = [];
+    // remove from selected names
+    this.selectedNames = this.selectedNames.filter((name) => name !== winner);
 
     // Also remove from selected names if it was selected
     const selectedIndex = this.selectedNames.indexOf(winner);
