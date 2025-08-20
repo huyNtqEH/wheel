@@ -3,6 +3,7 @@ class WheelOfNames {
     this.canvas = document.getElementById("wheel");
     this.ctx = this.canvas.getContext("2d");
     this.names = [];
+    this.selectedNames = [];
     this.colors = [
       "#FF6B6B",
       "#4ECDC4",
@@ -91,14 +92,36 @@ class WheelOfNames {
     const index = this.names.indexOf(name);
     if (index > -1) {
       this.names.splice(index, 1);
+      // Also remove from selected names if it was selected
+      const selectedIndex = this.selectedNames.indexOf(name);
+      if (selectedIndex > -1) {
+        this.selectedNames.splice(selectedIndex, 1);
+      }
       this.updateNamesList();
       this.drawWheel();
       this.updateUI();
     }
   }
 
+  toggleNameSelection(name, isChecked) {
+    if (isChecked) {
+      // Add name to selected array if not already there
+      if (!this.selectedNames.includes(name)) {
+        this.selectedNames.push(name);
+      }
+    } else {
+      // Remove name from selected array
+      const index = this.selectedNames.indexOf(name);
+      if (index > -1) {
+        this.selectedNames.splice(index, 1);
+      }
+    }
+    console.log("Selected names:", this.selectedNames); // For debugging
+  }
+
   clearAllNames() {
     this.names = [];
+    this.selectedNames = [];
     this.updateNamesList();
     this.drawWheel();
     this.updateUI();
@@ -114,7 +137,9 @@ class WheelOfNames {
           (name) => `
                 <div class="name-item">
                     <span class="name-text">${name}</span>
-                    <button class="remove-btn" onclick="wheel.removeName('${name}')">×</button>
+                    <input type="checkbox" class="name-checkbox" ${
+                      this.selectedNames.includes(name) ? "checked" : ""
+                    } onchange="wheel.toggleNameSelection('${name}', this.checked)">
                 </div>
             `
         )
@@ -268,13 +293,26 @@ class WheelOfNames {
     const pointerAngle = (270 + finalRotation) % 360; // Pointer position after spin
     const anglePerSegment = 360 / this.names.length;
     // const winnerIndex = Math.floor(pointerAngle / anglePerSegment);
-    const winnerIndex = this.exactSpins
+    let winnerIndex = this.exactSpins
       ? 0
       : Math.floor(pointerAngle / anglePerSegment);
-    const winner = this.names[winnerIndex];
+    let winner = this.names[winnerIndex];
+
+    if (this.selectedNames.length > 0) {
+      const randomIndex = Math.floor(Math.random() * this.selectedNames.length);
+      winner = this.selectedNames[randomIndex];
+      winnerIndex = this.names.indexOf(winner);
+    }
 
     // Remove winner from the list
     this.names.splice(winnerIndex, 1);
+    this.selectedNames = [];
+
+    // Also remove from selected names if it was selected
+    const selectedIndex = this.selectedNames.indexOf(winner);
+    if (selectedIndex > -1) {
+      this.selectedNames.splice(selectedIndex, 1);
+    }
 
     // Update the display
     this.updateNamesList();
