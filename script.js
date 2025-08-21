@@ -134,6 +134,7 @@ class WheelOfNames {
     this.codes = [];
     this.selectedNames = [];
     this.updateNamesList();
+    this.updateNamesTable();
     this.drawWheel();
     this.updateUI();
   }
