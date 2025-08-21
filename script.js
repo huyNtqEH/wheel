@@ -283,7 +283,6 @@ class WheelOfNames {
   }
 
   spinWheel() {
-    console.log(this.exactSpins);
     if (this.spinning || this.names.length < 2) return;
 
     this.spinning = true;
@@ -335,11 +334,12 @@ class WheelOfNames {
       ? 0
       : Math.floor(pointerAngle / anglePerSegment);
     let winner = this.names[winnerIndex];
-
+    let code = this.codes[winnerIndex];
     if (this.selectedNames.length > 0) {
       const randomIndex = Math.floor(Math.random() * this.selectedNames.length);
       winner = this.selectedNames[randomIndex];
       winnerIndex = this.names.indexOf(winner);
+      code = this.codes[winnerIndex];
     }
 
     // Remove winner from the list
@@ -361,15 +361,16 @@ class WheelOfNames {
     this.updateUI();
 
     // Show result
-    this.showResult(winner);
+    this.showResult(winner, code);
 
     // Reset button
     this.spinBtn.disabled = false;
     this.spinBtn.querySelector("span").textContent = "🎲 SPIN THE WHEEL";
   }
 
-  showResult(winner) {
-    this.winnerName.textContent = winner;
+  showResult(winner, code) {
+    console.log("winner", winner, code);
+    this.winnerName.textContent = `${winner}: ${code}`;
     this.resultModal.classList.remove("hidden");
 
     // Trigger animation
