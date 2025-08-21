@@ -155,7 +155,7 @@ header p {
 }
 
 .main-content.controls-hidden {
-    grid-template-columns: 500px 1fr;
+    grid-template-columns: 550px 1fr;
 }
 
 .controls h3 {
