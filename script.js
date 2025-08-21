@@ -96,32 +96,15 @@ class WheelOfNames {
     }
   }
 
-  removeName(name) {
-    const index = this.names.indexOf(name);
-    if (index > -1) {
-      this.names.splice(index, 1);
-      this.codes.splice(index, 1);
-      // Also remove from selected names if it was selected
-      const selectedIndex = this.selectedNames.indexOf(name);
-      if (selectedIndex > -1) {
-        this.selectedNames.splice(selectedIndex, 1);
-      }
-      this.updateNamesTable();
-      this.updateNamesList();
-      this.drawWheel();
-      this.updateUI();
-    }
-  }
-
-  toggleNameSelection(name, isChecked) {
+  toggleNameSelection(idx, isChecked) {
     if (isChecked) {
       // Add name to selected array if not already there
-      if (!this.selectedNames.includes(name)) {
-        this.selectedNames.push(name);
+      if (!this.selectedNames.includes(idx)) {
+        this.selectedNames.push(idx);
       }
     } else {
       // Remove name from selected array
-      const index = this.selectedNames.indexOf(name);
+      const index = this.selectedNames.indexOf(idx);
       if (index > -1) {
         this.selectedNames.splice(index, 1);
       }
@@ -146,12 +129,12 @@ class WheelOfNames {
     } else {
       this.namesList.innerHTML = this.names
         .map(
-          (name) => `
+          (name, idx) => `
                 <div class="name-item">
-                    <span class="name-text">${name}</span>
+                    <span class="name-text">${name}: ${this.codes[idx]}</span>
                     <input type="checkbox" class="name-checkbox" ${
-                      this.selectedNames.includes(name) ? "checked" : ""
-                    } onchange="wheel.toggleNameSelection('${name}', this.checked)">
+                      this.selectedNames.includes(idx) ? "checked" : ""
+                    } onchange="wheel.toggleNameSelection(${idx}, this.checked)">
                 </div>
             `
         )
@@ -335,24 +318,27 @@ class WheelOfNames {
       : Math.floor(pointerAngle / anglePerSegment);
     let winner = this.names[winnerIndex];
     let code = this.codes[winnerIndex];
+    console.log("selectedNames", this.selectedNames);
     if (this.selectedNames.length > 0) {
       const randomIndex = Math.floor(Math.random() * this.selectedNames.length);
-      winner = this.selectedNames[randomIndex];
-      winnerIndex = this.names.indexOf(winner);
+      winnerIndex = this.selectedNames[randomIndex];
+      winner = this.names[winnerIndex];
       code = this.codes[winnerIndex];
     }
-
+    console.log("winnerIndex", winnerIndex, winner);
     // Remove winner from the list
     this.names.splice(winnerIndex, 1);
     this.codes.splice(winnerIndex, 1);
     // remove from selected names
-    this.selectedNames = this.selectedNames.filter((name) => name !== winner);
+    this.selectedNames = this.selectedNames.filter(
+      (idx) => idx !== winnerIndex
+    );
 
     // Also remove from selected names if it was selected
-    const selectedIndex = this.selectedNames.indexOf(winner);
-    if (selectedIndex > -1) {
-      this.selectedNames.splice(selectedIndex, 1);
-    }
+    // const selectedIndex = this.selectedNames.indexOf(winner);
+    // if (selectedIndex > -1) {
+    //   this.selectedNames.splice(selectedIndex, 1);
+    // }
 
     // Update the display
     this.updateNamesList();
