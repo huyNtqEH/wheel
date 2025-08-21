@@ -3,6 +3,7 @@ class WheelOfNames {
     this.canvas = document.getElementById("wheel");
     this.ctx = this.canvas.getContext("2d");
     this.names = [];
+    this.codes = [];
     this.selectedNames = [];
     this.colors = [
       "#FF6B6B",
@@ -33,6 +34,7 @@ class WheelOfNames {
     this.initializeElements();
     this.setupEventListeners();
     this.drawWheel();
+    this.updateNamesTable();
   }
 
   initializeElements() {
@@ -49,6 +51,9 @@ class WheelOfNames {
     this.toggleIcon = document.getElementById("toggle-icon");
     this.controls = document.querySelector(".controls");
     this.mainContent = document.querySelector(".main-content");
+    this.namesTableContainer = document.querySelector(".names-table-container");
+    this.namesTableBody = document.getElementById("names-table-body");
+    this.tableNameCount = document.getElementById("table-name-count");
   }
 
   setupEventListeners() {
@@ -74,13 +79,16 @@ class WheelOfNames {
     if (!input) return;
 
     // Split by newlines and filter out empty lines
-    const newNames = input
+    const newNames = input.split("\n").map((name) => name.trim().split(",")[0]);
+    // .filter((name) => name && !this.names.includes(name));
+    const codes = input
       .split("\n")
-      .map((name) => name.trim())
-      .filter((name) => name && !this.names.includes(name));
+      .map((name) => name.trim().split(",")[1] || "");
+    // .filter((code) => code && !this.codes.includes(code));
 
     if (newNames.length > 0) {
       this.names.push(...newNames);
+      this.codes.push(...codes);
       this.nameInput.value = "";
       this.updateNamesList();
       this.drawWheel();
@@ -92,11 +100,13 @@ class WheelOfNames {
     const index = this.names.indexOf(name);
     if (index > -1) {
       this.names.splice(index, 1);
+      this.codes.splice(index, 1);
       // Also remove from selected names if it was selected
       const selectedIndex = this.selectedNames.indexOf(name);
       if (selectedIndex > -1) {
         this.selectedNames.splice(selectedIndex, 1);
       }
+      this.updateNamesTable();
       this.updateNamesList();
       this.drawWheel();
       this.updateUI();
@@ -121,6 +131,7 @@ class WheelOfNames {
 
   clearAllNames() {
     this.names = [];
+    this.codes = [];
     this.selectedNames = [];
     this.updateNamesList();
     this.drawWheel();
@@ -151,19 +162,46 @@ class WheelOfNames {
     this.nameCount.textContent = this.names.length;
     this.clearAllBtn.style.display = this.names.length > 0 ? "block" : "none";
     this.spinBtn.disabled = this.names.length < 2;
+    // Update the table if it's visible
+    if (!this.namesTableContainer.classList.contains("hidden")) {
+      this.updateNamesTable();
+    }
+  }
+
+  updateNamesTable() {
+    this.tableNameCount.textContent = this.names.length;
+
+    if (this.names.length === 0) {
+      this.namesTableBody.innerHTML =
+        '<tr><td colspan="2" class="empty-table-message">No names added yet</td></tr>';
+    } else {
+      this.namesTableBody.innerHTML = this.names
+        .map(
+          (name, index) => `
+            <tr>
+              <td class="name-number">${index + 1}</td>
+              <td class="name-text">${name}: ${this.codes[index]}</td>
+            </tr>
+          `
+        )
+        .join("");
+    }
   }
 
   toggleControls() {
     const isHidden = this.controls.classList.contains("hidden");
     if (isHidden) {
-      // Show controls
+      // Show controls, hide name table
       this.controls.classList.remove("hidden");
       this.mainContent.classList.remove("controls-hidden");
+      this.namesTableContainer.classList.add("hidden");
       this.toggleIcon.textContent = "👁️";
     } else {
-      // Hide controls
+      // Hide controls, show name table
       this.controls.classList.add("hidden");
       this.mainContent.classList.add("controls-hidden");
+      this.namesTableContainer.classList.remove("hidden");
+      this.updateNamesTable();
       this.toggleIcon.textContent = "🙈";
     }
   }
@@ -305,6 +343,7 @@ class WheelOfNames {
 
     // Remove winner from the list
     this.names.splice(winnerIndex, 1);
+    this.codes.splice(winnerIndex, 1);
     // remove from selected names
     this.selectedNames = this.selectedNames.filter((name) => name !== winner);
 
@@ -316,6 +355,7 @@ class WheelOfNames {
 
     // Update the display
     this.updateNamesList();
+    this.updateNamesTable();
     this.drawWheel();
     this.updateUI();
 
