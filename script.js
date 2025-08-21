@@ -329,16 +329,11 @@ class WheelOfNames {
     // Remove winner from the list
     this.names.splice(winnerIndex, 1);
     this.codes.splice(winnerIndex, 1);
-    // remove from selected names
-    this.selectedNames = this.selectedNames.filter(
-      (idx) => idx !== winnerIndex
-    );
 
-    // Also remove from selected names if it was selected
-    // const selectedIndex = this.selectedNames.indexOf(winner);
-    // if (selectedIndex > -1) {
-    //   this.selectedNames.splice(selectedIndex, 1);
-    // }
+    // Update selectedNames array: remove winner index and adjust remaining indices
+    this.selectedNames = this.selectedNames
+      .filter((idx) => idx !== winnerIndex) // Remove the winner's index
+      .map((idx) => (idx > winnerIndex ? idx - 1 : idx)); // Decrement indices greater than winnerIndex
 
     // Update the display
     this.updateNamesList();
