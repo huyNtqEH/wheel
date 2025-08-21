@@ -389,7 +389,7 @@ header p {
     border-radius: 20px;
     padding: 40px;
     text-align: center;
-    max-width: 400px;
+    /* max-width: 400px; */
     width: 90%;
     transform: scale(0.7);
     transition: transform 0.3s ease;
